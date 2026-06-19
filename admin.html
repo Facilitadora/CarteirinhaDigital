@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Administração - Colaboradores</title>
+<link rel="stylesheet" href="css/style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+</head>
+<body>
+
+<div class="topo">
+  <h1>Painel de Colaboradores</h1>
+  <button id="btn-sair">Sair</button>
+</div>
+
+<div class="container">
+
+  <div class="card">
+    <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;">
+      <input type="text" id="busca" placeholder="Buscar por nome ou matrícula..." style="max-width:300px;">
+      <button class="btn-novo" id="btn-novo">+ Novo Colaborador</button>
+    </div>
+  </div>
+
+  <div class="card" id="lista-card">
+    <p class="vazio" id="carregando">Carregando colaboradores...</p>
+    <div id="lista-colaboradores"></div>
+  </div>
+
+</div>
+
+<!-- Modal: Cadastro/Edição de colaborador -->
+<div class="modal-bg" id="modal-colaborador">
+  <div class="modal">
+    <h2 id="modal-titulo">Novo Colaborador</h2>
+    <form id="form-colaborador">
+      <input type="hidden" id="colab-id">
+      <label>Nome completo</label>
+      <input type="text" id="colab-nome" required>
+      <label>Matrícula</label>
+      <input type="text" id="colab-matricula" required>
+      <label>Setor</label>
+      <input type="text" id="colab-setor" required>
+      <label>Função (opcional)</label>
+      <input type="text" id="colab-funcao">
+      <button type="submit" class="primary">Salvar</button>
+      <button type="button" class="modal-fechar" onclick="fecharModal('modal-colaborador')">Cancelar</button>
+    </form>
+  </div>
+</div>
+
+<!-- Modal: Ficha completa (treinamentos, exames, QR code) -->
+<div class="modal-bg" id="modal-ficha">
+  <div class="modal" style="max-width:520px;">
+    <h2 id="ficha-nome">Nome do colaborador</h2>
+    <p style="font-size:13px; color:#64748b; margin-top:-8px;" id="ficha-sub"></p>
+
+    <div id="qrcode-area">
+      <canvas id="qr-canvas"></canvas>
+      <div class="link-publico" id="link-publico-texto"></div>
+      <button type="button" class="primary" id="btn-baixar-qr" style="margin-top:10px;">Baixar QR Code (PNG)</button>
+    </div>
+
+    <h2 class="secao" style="margin-top:20px;">Treinamentos</h2>
+    <div id="lista-treinamentos"></div>
+    <form id="form-treinamento" style="margin-top:10px;">
+      <label>Nome do treinamento</label>
+      <input type="text" id="trein-nome" required placeholder="Ex: NR-35 Trabalho em Altura">
+      <label>Data de realização</label>
+      <input type="date" id="trein-data" required>
+      <label>Data de validade (deixe em branco se não tiver)</label>
+      <input type="date" id="trein-validade">
+      <button type="submit" class="primary">Adicionar treinamento</button>
+    </form>
+
+    <h2 class="secao" style="margin-top:24px;">Exames</h2>
+    <div id="lista-exames"></div>
+    <form id="form-exame" style="margin-top:10px;">
+      <label>Tipo de exame</label>
+      <input type="text" id="exame-tipo" required placeholder="Ex: Exame Periódico">
+      <label>Data de realização</label>
+      <input type="date" id="exame-data" required>
+      <label>Data de validade</label>
+      <input type="date" id="exame-validade">
+      <button type="submit" class="primary">Adicionar exame</button>
+    </form>
+
+    <button type="button" class="modal-fechar" onclick="fecharModal('modal-ficha')">Fechar</button>
+  </div>
+</div>
+
+<script src="js/supabase-config.js"></script>
+<script src="js/admin.js"></script>
+
+</body>
+</html>

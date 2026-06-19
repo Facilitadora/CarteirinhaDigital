@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login - Sistema de Treinamentos</title>
+<link rel="stylesheet" href="css/style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+<div class="login-wrap">
+  <div class="login-box">
+    <h1>Sistema de Treinamentos</h1>
+    <p>Faça login para gerenciar colaboradores</p>
+
+    <form id="form-login">
+      <label for="email">E-mail</label>
+      <input type="email" id="email" required placeholder="seuemail@empresa.com">
+
+      <label for="senha">Senha</label>
+      <input type="password" id="senha" required placeholder="••••••••">
+
+      <button type="submit" class="primary">Entrar</button>
+      <div class="erro" id="msg-erro">E-mail ou senha incorretos.</div>
+    </form>
+  </div>
+</div>
+
+<script src="js/supabase-config.js"></script>
+<script>
+  // Se já estiver logado, vai direto pro admin
+  (async () => {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (session) window.location.href = "admin.html";
+  })();
+
+  document.getElementById("form-login").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const email = document.getElementById("email").value;
+    const senha = document.getElementById("senha").value;
+    const msgErro = document.getElementById("msg-erro");
+
+    const { error } = await supabaseClient.auth.signInWithPassword({ email, password: senha });
+
+    if (error) {
+      msgErro.textContent = "E-mail ou senha incorretos.";
+      msgErro.style.display = "block";
+    } else {
+      window.location.href = "admin.html";
+    }
+  });
+</script>
+
+</body>
+</html>

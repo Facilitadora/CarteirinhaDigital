@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ficha do Colaborador</title>
+<link rel="stylesheet" href="css/style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+<div id="conteudo">
+  <div class="ficha-header">
+    <h1 id="f-nome">Carregando...</h1>
+    <p id="f-matricula"></p>
+    <p id="f-setor"></p>
+  </div>
+
+  <div class="container">
+    <div class="card">
+      <h2 class="secao">Treinamentos</h2>
+      <div id="f-treinamentos"><p class="vazio">Carregando...</p></div>
+    </div>
+
+    <div class="card">
+      <h2 class="secao">Exames Periódicos</h2>
+      <div id="f-exames"><p class="vazio">Carregando...</p></div>
+    </div>
+  </div>
+</div>
+
+<script src="js/supabase-config.js"></script>
+<script>
+  function formatarData(iso) {
+    if (!iso) return "";
+    const [ano, mes, dia] = iso.split("-");
+    return `${dia}/${mes}/${ano}`;
+  }
+
+  function badgeStatus(dataValidade) {
+    if (!dataValidade) return `<span class="badge sem-validade">Sem validade</span>`;
+    const hoje = new Date();
+    hoje.setHours(0,0,0,0);
+    const validade = new Date(dataValidade + "T00:00:00");
+    const diffDias = Math.floor((validade - hoje) / (1000 * 60 * 60 * 24));
+
+    if (diffDias < 0) return `<span class="badge vencido">Vencido</span>`;
+    if (diffDias <= 30) return `<span class="badge vencendo">Vence em ${diffDias}d</span>`;
+    return `<span class="badge valido">Válido</span>`;
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement("div");
+    div.textContent = str || "";
+    return div.innerHTML;
+  }
+
+  async function carregarFicha() {
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get("id");
+
+    if (!id) {
+      document.getElementById("f-nome").textContent = "Colaborador não encontrado";
+      return;
+    }
+
+    const { data: colab, error } = await supabaseClient
+      .from("colaboradores")
+      .select("*")
+      .eq("id", id)
+      .single();
+
+    if (error || !colab) {
+      document.getElementById("f-nome").textContent = "Colaborador não encontrado";
+      document.getElementById("f-treinamentos").innerHTML = "";
+      document.getElementById("f-exames").innerHTML = "";
+      return;
+    }
+
+    document.title = colab.nome + " - Ficha";
+    document.getElementById("f-nome").textContent = colab.nome;
+    document.getElementById("f-matricula").textContent = "Matrícula: " + colab.matricula;
+    document.getElementById("f-setor").textContent = colab.setor + (colab.funcao ? " · " + colab.funcao : "");
+
+    const [{ data: treinamentos }, { data: exames }] = await Promise.all([
+      supabaseClient.from("treinamentos").select("*").eq("colaborador_id", id).order("data_realizacao", { ascending: false }),
+      supabaseClient.from("exames").select("*").eq("colaborador_id", id).order("data_realizacao", { ascending: false }),
+    ]);
+
+    const elT = document.getElementById("f-treinamentos");
+    if (!treinamentos || !treinamentos.length) {
+      elT.innerHTML = `<p class="vazio">Nenhum treinamento cadastrado.</p>`;
+    } else {
+      elT.innerHTML = treinamentos.map(t => `
+        <div class="item-registro">
+          <div>
+            <div class="nome">${escapeHtml(t.nome)}</div>
+            <div class="data">Realizado em ${formatarData(t.data_realizacao)}${t.data_validade ? " · Válido até " + formatarData(t.data_validade) : ""}</div>
+          </div>
+          ${badgeStatus(t.data_validade)}
+        </div>
+      `).join("");
+    }
+
+    const elE = document.getElementById("f-exames");
+    if (!exames || !exames.length) {
+      elE.innerHTML = `<p class="vazio">Nenhum exame cadastrado.</p>`;
+    } else {
+      elE.innerHTML = exames.map(ex => `
+        <div class="item-registro">
+          <div>
+            <div class="nome">${escapeHtml(ex.tipo)}</div>
+            <div class="data">Realizado em ${formatarData(ex.data_realizacao)}${ex.data_validade ? " · Válido até " + formatarData(ex.data_validade) : ""}</div>
+          </div>
+          ${badgeStatus(ex.data_validade)}
+        </div>
+      `).join("");
+    }
+  }
+
+  carregarFicha();
+</script>
+
+</body>
+</html>
