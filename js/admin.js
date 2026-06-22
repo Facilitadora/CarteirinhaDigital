@@ -1,8 +1,4 @@
-// ============================================
-// CONFIG: troque esta URL pelo link final do seu GitHub Pages
-// Ex: "https://seuusuario.github.io/epi-sistema"
-// ============================================
-const URL_BASE_PUBLICA = window.location.origin + window.location.pathname.replace("admin.html", "");
+const https://facilitadora.github.io/CarteirinhaDigital/ = window.location.origin + window.location.pathname.replace("admin.html", "");
 
 let colaboradorAtualId = null;
 
@@ -137,9 +133,12 @@ async function abrirFicha(id) {
   document.getElementById("link-publico-texto").textContent = linkPublico;
 
   const canvas = document.getElementById("qr-canvas");
-  QRCode.toCanvas(canvas, linkPublico, { width: 200, margin: 1 }, (err) => {
-    if (err) console.error(err);
-  });
+  try {
+    qrcodeGerar(canvas, linkPublico, 200);
+  } catch (err) {
+    console.error("Erro ao gerar QR code:", err);
+    document.getElementById("qrcode-area").innerHTML = `<p class="vazio">Não foi possível gerar o QR code. Link: ${linkPublico}</p>`;
+  }
 
   document.getElementById("btn-baixar-qr").onclick = () => {
     const link = document.createElement("a");
