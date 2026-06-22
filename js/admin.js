@@ -1,4 +1,4 @@
-const https://facilitadora.github.io/CarteirinhaDigital/ = window.location.origin + window.location.pathname.replace("admin.html", "");
+const URL_BASE_PUBLICA = "https://facilitadora.github.io/CarteirinhaDigital";
 
 let colaboradorAtualId = null;
 
