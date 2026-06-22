@@ -1,4 +1,8 @@
-const URL_BASE_PUBLICA = "https://facilitadora.github.io/CarteirinhaDigital";
+// ============================================
+// CONFIG: troque esta URL pelo link final do seu GitHub Pages
+// Ex: "https://seuusuario.github.io/epi-sistema"
+// ============================================
+const URL_BASE_PUBLICA = window.location.origin + window.location.pathname.replace("admin.html", "");
 
 let colaboradorAtualId = null;
 
